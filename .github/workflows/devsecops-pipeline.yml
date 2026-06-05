@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  # JOB 1 : BUILD + SAST + SCA (tout en un)
+  # JOB 1 : BUILD + SAST + SCA
   build:
     name: Build & Security Scans
     runs-on: ubuntu-latest
@@ -54,14 +54,14 @@ jobs:
           format: 'table'
           exit-code: '0'
           severity: 'HIGH,CRITICAL'
-          output: trivy-image-report.txt
+          output: trivy_report.txt
       
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: trivy-report
-          path: trivy-image-report.txt
+          name: trivy_report
+          path: trivy_report.txt
 
   # JOB 2 : DAST - OWASP ZAP
   dast:
@@ -71,7 +71,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Start Application with Docker
+      - name: Start Application
         run: |
           docker compose up -d --build
           echo "Waiting for API to be ready..."
@@ -88,20 +88,16 @@ jobs:
         uses: zaproxy/action-baseline@v0.12.0
         with:
           target: 'http://localhost:8080'
-          cmd_options: '-J zap-report.json -r zap-report.html'
-          rules_file_name: ''
-          allow_issue_writing: false
+          cmd_options: '-J zap_report.json'
       
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: zap-report
-          path: |
-            zap-report.json
-            zap-report.html
+          name: zap_report
+          path: zap_report.json
       
-      - name: Teardown
+      - name: Stop Containers
         if: always()
         run: docker compose down -v
 
@@ -112,31 +108,33 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Download all artifacts
+      - name: Download All Reports
         uses: actions/download-artifact@v4
         if: always()
         with:
           path: reports/
       
-      - name: Generate Summary
+      - name: Generate Security Summary
         run: |
-          echo "# 📊 DevSecOps Pipeline Report" >> $GITHUB_STEP_SUMMARY
+          echo "# DevSecOps Pipeline Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Pipeline Execution Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Stage | Tool | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| SAST | SonarCloud | ✅ |" >> $GITHUB_STEP_SUMMARY
-          echo "| SCA | Trivy | ✅ |" >> $GITHUB_STEP_SUMMARY
-          echo "| DAST | OWASP ZAP | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST | SonarCloud | Completed |" >> $GITHUB_STEP_SUMMARY
+          echo "| SCA | Trivy | Completed |" >> $GITHUB_STEP_SUMMARY
+          echo "| DAST | OWASP ZAP | Completed |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📁 Generated Reports" >> $GITHUB_STEP_SUMMARY
-          echo "- Trivy report" >> $GITHUB_STEP_SUMMARY
-          echo "- ZAP DAST report" >> $GITHUB_STEP_SUMMARY
+          echo "## Generated Reports" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Trivy report: trivy_report.txt" >> $GITHUB_STEP_SUMMARY
+          echo "- ZAP DAST report: zap_report.json" >> $GITHUB_STEP_SUMMARY
+          echo "- SonarCloud analysis: https://sonarcloud.io/project/overview?id=said-rahmani_api-devsecops-usermgmt" >> $GITHUB_STEP_SUMMARY
       
       - name: Upload All Reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: devsecops-reports
+          name: devsecops_reports
           path: reports/
