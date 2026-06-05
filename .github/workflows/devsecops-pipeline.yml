@@ -60,8 +60,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=${{ github.repository_owner }}_api-devsecops-usermgmt
-            -Dsonar.organization=${{ github.repository_owner }}
+            -Dsonar.projectKey=said-rahmani_api-devsecops-usermgmt
+            -Dsonar.organization=said-rahmani
 
       - name: Quality Gate
         uses: SonarSource/sonarqube-quality-gate-action@master
