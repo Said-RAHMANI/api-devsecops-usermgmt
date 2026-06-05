@@ -60,12 +60,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn sonar:sonar \
+            -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.projectKey=said-rahmani_api-devsecops-usermgmt \
             -Dsonar.organization=said-rahmani \
-            -Dsonar.java.binaries=target/classes \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+            -Dsonar.java.binaries=target/classes
 
-  # JOB 3 : SCA - Trivy (scan des dépendances et vulnérabilités)
+  # JOB 3 : SCA - Trivy (scan des dépendances)
   sca:
     name: SCA - Trivy
     needs: [setup]
@@ -73,7 +73,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Run Trivy on filesystem
+      - name: Run Trivy filesystem scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
@@ -82,7 +82,7 @@ jobs:
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
       
-      - name: Run Trivy on Docker image (if exists)
+      - name: Run Trivy on Docker image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'api-devsecops-usermgmt:latest'
@@ -175,7 +175,7 @@ jobs:
         if: always()
         run: docker compose down -v
 
-  # JOB 6 : REPORTING - Rapport final de sécurité
+  # JOB 6 : REPORTING - Rapport final
   reporting:
     name: Security Reporting
     needs: [dast]
