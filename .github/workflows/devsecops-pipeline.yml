@@ -88,14 +88,14 @@ jobs:
         uses: zaproxy/action-baseline@v0.12.0
         with:
           target: 'http://localhost:8080'
-          cmd_options: '-J zap_report.json'
+          cmd_options: '-r zap_report.html'
       
       - name: Upload ZAP Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: zap_report
-          path: zap_report.json
+          path: zap_report.html
       
       - name: Stop Containers
         if: always()
@@ -129,7 +129,7 @@ jobs:
           echo "## Generated Reports" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- Trivy report: trivy_report.txt" >> $GITHUB_STEP_SUMMARY
-          echo "- ZAP DAST report: zap_report.json" >> $GITHUB_STEP_SUMMARY
+          echo "- ZAP DAST report: zap_report.html" >> $GITHUB_STEP_SUMMARY
           echo "- SonarCloud analysis: https://sonarcloud.io/project/overview?id=said-rahmani_api-devsecops-usermgmt" >> $GITHUB_STEP_SUMMARY
       
       - name: Upload All Reports
