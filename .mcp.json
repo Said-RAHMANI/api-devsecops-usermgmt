@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "charlie": {
+      "command": "/usr/local/bin/charlie-mcp",
+      "env": {
+        "ORBIT_URL": "http://localhost:3000",
+        "STELLA_BACKEND_URL": "https://charlie-back.cloud-station.io",
+        "USER_TOKEN": "${USER_TOKEN}"
+      }
+    }
+  }
+}

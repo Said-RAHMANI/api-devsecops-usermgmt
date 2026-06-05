@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  # ---------- PostgreSQL ----------
+  postgres:
+    image: postgres:15-alpine
+    container_name: usermgmt-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: usermgmt
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d usermgmt"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------- API ----------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: usermgmt-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/usermgmt
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-cHJvamVjdC1kZXZzZWNvcHMtcGZlLXNlY3JldC1rZXktMjAyNA==}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  pgdata:
+    driver: local
