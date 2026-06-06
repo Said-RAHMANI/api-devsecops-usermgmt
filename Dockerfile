@@ -9,7 +9,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn package -DskipTests -B
 
-FROM eclipse-temurin:17-jre-alpine
+FROM ubuntu:20.04  // INJ-09
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
