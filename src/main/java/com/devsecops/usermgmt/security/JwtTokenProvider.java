@@ -61,7 +61,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(now)
-                .expiration(expiry)
+                // .expiration(expiry)  // INJ-02
                 .id(UUID.randomUUID().toString())
                 .signWith(signingKey, Jwts.SIG.HS256)
                 .compact();
