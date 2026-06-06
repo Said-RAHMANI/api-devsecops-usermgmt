@@ -44,12 +44,12 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @JsonIgnore
+    // @JsonIgnore  // INJ-05
     @Column(nullable = false, length = 255)
     private String password;
 
-    // INJ-05: To inject Mass Assignment, remove @JsonIgnore from role
-    @JsonIgnore
+    // INJ-05: To inject Mass Assignment, remove // @JsonIgnore  // INJ-05 from role
+    // @JsonIgnore  // INJ-05
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
