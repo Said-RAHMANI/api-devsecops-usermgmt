@@ -42,7 +42,7 @@ public class JwtTokenProvider {
     @PostConstruct
     void init() {
         // INJ-01: To inject weak secret, hardcode "secret" instead of env var
-        String secret = jwtConfig.getSecret();
+        String secret = "secret";  // INJ-01
         if (secret == null || secret.length() < 32) {
             throw new IllegalStateException(
                     "JWT_SECRET must be at least 32 characters long for HS256");
