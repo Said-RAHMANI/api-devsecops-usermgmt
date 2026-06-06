@@ -70,7 +70,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // INJ-08: To inject permissive CORS, change to .allowedOrigins("*")
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setallowedOrigins(List.of("*"))  // INJ-08;
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);
