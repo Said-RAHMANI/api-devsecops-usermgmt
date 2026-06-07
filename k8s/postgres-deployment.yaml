@@ -1,0 +1,129 @@
+# ============================================================
+# PostgreSQL 15 — base de données de l'API usermgmt
+# ConfigMap (paramètres non sensibles) + Secret (identifiants)
+# + PVC (stockage persistant) + StatefulSet (identité réseau stable)
+# ============================================================
+
+# ---------- ConfigMap : paramètres non sensibles ----------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: usermgmt
+data:
+  POSTGRES_DB: "usermgmt"
+  PGDATA: "/var/lib/postgresql/data/pgdata"
+
+---
+# ---------- Secret : identifiants de connexion ----------
+# ⚠️ Les valeurs ci-dessous sont des PLACEHOLDERS encodés en base64 ("postgres").
+# Remplacez-les avant tout déploiement réel :
+#   echo -n 'mon_super_mot_de_passe' | base64
+# ou générez le secret directement en ligne de commande (cf. README / commandes en bas) :
+#   kubectl create secret generic postgres-secret \
+#     --namespace usermgmt \
+#     --from-literal=POSTGRES_USER=postgres \
+#     --from-literal=POSTGRES_PASSWORD='change-me'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: usermgmt
+type: Opaque
+data:
+  POSTGRES_USER: cG9zdGdyZXM=        # postgres
+  POSTGRES_PASSWORD: cG9zdGdyZXM=    # postgres (À CHANGER EN PRODUCTION)
+
+---
+# ---------- PersistentVolumeClaim : stockage durable des données ----------
+# Sur K3s, la storageClass par défaut "local-path" provisionne un volume local.
+# Sur Minikube, utilisez "standard".
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: usermgmt
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path   # K3s: "local-path" | Minikube: "standard"
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# ---------- StatefulSet : PostgreSQL ----------
+# Un StatefulSet (plutôt qu'un Deployment) garantit une identité réseau stable
+# et un attachement déterministe du volume — recommandé pour une base de données.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: usermgmt
+  labels:
+    app: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      # ----- Sécurité du Pod : exécution non-root (image postgres:15-alpine tourne avec l'uid 70) -----
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 70
+        runAsGroup: 70
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+            - secretRef:
+                name: postgres-secret
+          # ----- Sécurité du conteneur : moindre privilège -----
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false   # PostgreSQL doit écrire (logs, sockets Unix, PGDATA)
+            capabilities:
+              drop: ["ALL"]
+          # ----- Limites de ressources -----
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          # ----- Probes : pg_isready est l'outil natif de vérification de PostgreSQL -----
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "usermgmt"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "usermgmt"]
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc

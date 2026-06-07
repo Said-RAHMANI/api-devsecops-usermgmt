@@ -50,6 +50,8 @@ public class SecurityConfig {
                                 "/api/auth/refresh",
                                 "/api/auth/verify",
                                 "/health",
+                                "/actuator/health/**",
+                                "/actuator/prometheus",
                                 "/",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",

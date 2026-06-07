@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.devsecops.usermgmt.filter.RateLimitingFilterTest" time="0.404" tests="5" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.devsecops.usermgmt.integration.AdminIntegrationTest" time="0.935" tests="1" errors="1" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -65,18 +65,31 @@
     <property name="java.class.version" value="61.0"/>
     <property name="LOGGED_APPLICATION_NAME" value="[api-devsecops-usermgmt] "/>
   </properties>
-  <testcase name="loginRequestExceedingLimitReturns429" classname="com.devsecops.usermgmt.filter.RateLimitingFilterTest" time="0.368">
-    <system-out><![CDATA[{"timestamp":"2026-06-07T19:22:46.5650616+02:00","@version":"1","message":"Rate limit exceeded for IP=10.0.0.1 path=/api/auth/login","logger":"com.devsecops.usermgmt.filter.RateLimitingFilter","thread":"main","level":"WARN","APP_NAME":"api-devsecops-usermgmt","service":"api-devsecops-usermgmt"}
+  <testcase name="" classname="com.devsecops.usermgmt.integration.AdminIntegrationTest" time="0.935">
+    <error message="Could not find a valid Docker environment. Please see logs and check configuration" type="java.lang.IllegalStateException"><![CDATA[java.lang.IllegalStateException: Could not find a valid Docker environment. Please see logs and check configuration
+	at org.testcontainers.dockerclient.DockerClientProviderStrategy.lambda$getFirstValidStrategy$7(DockerClientProviderStrategy.java:277)
+	at java.base/java.util.Optional.orElseThrow(Optional.java:403)
+	at org.testcontainers.dockerclient.DockerClientProviderStrategy.getFirstValidStrategy(DockerClientProviderStrategy.java:268)
+	at org.testcontainers.DockerClientFactory.getOrInitializeStrategy(DockerClientFactory.java:152)
+	at org.testcontainers.DockerClientFactory.client(DockerClientFactory.java:194)
+	at org.testcontainers.DockerClientFactory$1.getDockerClient(DockerClientFactory.java:106)
+	at com.github.dockerjava.api.DockerClientDelegate.authConfig(DockerClientDelegate.java:109)
+	at org.testcontainers.containers.GenericContainer.start(GenericContainer.java:329)
+	at org.testcontainers.junit.jupiter.TestcontainersExtension$StoreAdapter.start(TestcontainersExtension.java:280)
+	at org.testcontainers.junit.jupiter.TestcontainersExtension$StoreAdapter.access$200(TestcontainersExtension.java:267)
+	at org.testcontainers.junit.jupiter.TestcontainersExtension.lambda$null$4(TestcontainersExtension.java:82)
+	at org.testcontainers.junit.jupiter.TestcontainersExtension.lambda$startContainers$5(TestcontainersExtension.java:82)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.testcontainers.junit.jupiter.TestcontainersExtension.startContainers(TestcontainersExtension.java:82)
+	at org.testcontainers.junit.jupiter.TestcontainersExtension.beforeAll(TestcontainersExtension.java:56)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+]]></error>
+    <system-out><![CDATA[{"timestamp":"2026-06-07T19:22:46.8394799+02:00","@version":"1","message":"Image pull policy will be performed by: DefaultPullPolicy()","logger":"org.testcontainers.images.PullPolicy","thread":"main","level":"INFO","APP_NAME":"api-devsecops-usermgmt","service":"api-devsecops-usermgmt"}
+{"timestamp":"2026-06-07T19:22:46.8429935+02:00","@version":"1","message":"Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')","logger":"org.testcontainers.utility.ImageNameSubstitutor","thread":"main","level":"INFO","APP_NAME":"api-devsecops-usermgmt","service":"api-devsecops-usermgmt"}
+{"timestamp":"2026-06-07T19:22:47.632431+02:00","@version":"1","message":"docker-machine executable was not found on PATH ([C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.17.10-hotspot\\bin, C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.17.10-hotspot\\bin, c:\\Users\\acer\\AppData\\Roaming\\Code\\User\\globalStorage\\github.copilot-chat\\debugCommand, c:\\Users\\acer\\AppData\\Roaming\\Code\\User\\globalStorage\\github.copilot-chat\\copilotCli, C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.17.10-hotspot\\bin, C:\\Windows\\system32, C:\\Windows, C:\\Windows\\System32\\Wbem, C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\, C:\\Windows\\System32\\OpenSSH\\, C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common, C:\\Program Files\\NVIDIA Corporation\\NVIDIA NvDLISR, C:\\WINDOWS\\system32, C:\\WINDOWS, C:\\WINDOWS\\System32\\Wbem, C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\, C:\\WINDOWS\\System32\\OpenSSH\\, C:\\Program Files\\nodejs\\, C:\\gcc\\bin, C:\\Program Files\\Git\\cmd, C:\\ProgramData\\chocolatey\\bin, C:\\Program Files\\Docker\\Docker\\resources\\bin, C:\\ProgramData\\chocolatey\\lib\\maven\\apache-maven-3.9.15\\bin, C:\\Program Files\\dotnet\\, C:\\Users\\acer\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\, C:\\Users\\acer\\AppData\\Local\\Programs\\Python\\Python312\\, C:\\Users\\acer\\AppData\\Local\\Programs\\Python\\Launcher\\, C:\\Users\\acer\\AppData\\Local\\Microsoft\\WindowsApps, C:\\Users\\acer\\AppData\\Local\\Programs\\Microsoft VS Code\\bin, C:\\Users\\acer\\AppData\\Roaming\\npm, c:\\Users\\acer\\.vscode\\extensions\\vscjava.vscode-java-debug-0.59.0\\bundled\\scripts\\noConfigScripts])","logger":"org.testcontainers.dockerclient.DockerMachineClientProviderStrategy","thread":"main","level":"INFO","APP_NAME":"api-devsecops-usermgmt","service":"api-devsecops-usermgmt"}
+{"timestamp":"2026-06-07T19:22:47.6349251+02:00","@version":"1","message":"Could not find a valid Docker environment. Please check configuration. Attempted configurations were:\n\tNpipeSocketClientProviderStrategy: failed with exception BadRequestException (Status 400: {\"ID\":\"\",\"Containers\":0,\"ContainersRunning\":0,\"ContainersPaused\":0,\"ContainersStopped\":0,\"Images\":0,\"Driver\":\"\",\"DriverStatus\":null,\"Plugins\":{\"Volume\":null,\"Network\":null,\"Authorization\":null,\"Log\":null},\"MemoryLimit\":false,\"SwapLimit\":false,\"CpuCfsPeriod\":false,\"CpuCfsQuota\":false,\"CPUShares\":false,\"CPUSet\":false,\"PidsLimit\":false,\"IPv4Forwarding\":false,\"Debug\":false,\"NFd\":0,\"OomKillDisable\":false,\"NGoroutines\":0,\"SystemTime\":\"\",\"LoggingDriver\":\"\",\"CgroupDriver\":\"\",\"NEventsListener\":0,\"KernelVersion\":\"\",\"OperatingSystem\":\"\",\"OSVersion\":\"\",\"OSType\":\"\",\"Architecture\":\"\",\"IndexServerAddress\":\"\",\"RegistryConfig\":null,\"NCPU\":0,\"MemTotal\":0,\"GenericResources\":null,\"DockerRootDir\":\"\",\"HttpProxy\":\"\",\"HttpsProxy\":\"\",\"NoProxy\":\"\",\"Name\":\"\",\"Labels\":[\"com.docker.desktop.address=npipe://\\\\\\\\.\\\\pipe\\\\docker_cli\"],\"ExperimentalBuild\":false,\"ServerVersion\":\"\",\"Runtimes\":null,\"DefaultRuntime\":\"\",\"Swarm\":{\"NodeID\":\"\",\"NodeAddr\":\"\",\"LocalNodeState\":\"\",\"ControlAvailable\":false,\"Error\":\"\",\"RemoteManagers\":null},\"LiveRestoreEnabled\":false,\"Isolation\":\"\",\"InitBinary\":\"\",\"ContainerdCommit\":{\"ID\":\"\"},\"RuncCommit\":{\"ID\":\"\"},\"InitCommit\":{\"ID\":\"\"},\"SecurityOptions\":null,\"CDISpecDirs\":null,\"Warnings\":null})As no valid configuration was found, execution cannot continue.\nSee https://java.testcontainers.org/on_failure.html for more details.","logger":"org.testcontainers.dockerclient.DockerClientProviderStrategy","thread":"main","level":"ERROR","APP_NAME":"api-devsecops-usermgmt","service":"api-devsecops-usermgmt"}
+{"timestamp":"2026-06-07T19:22:47.6371613+02:00","@version":"1","message":"Could not detect default configuration classes for test class [com.devsecops.usermgmt.integration.AdminIntegrationTest]: AdminIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.","logger":"org.springframework.test.context.support.AnnotationConfigContextLoaderUtils","thread":"main","level":"INFO","APP_NAME":"api-devsecops-usermgmt","service":"api-devsecops-usermgmt"}
+{"timestamp":"2026-06-07T19:22:47.6657532+02:00","@version":"1","message":"Found @SpringBootConfiguration com.devsecops.usermgmt.ApiDevsecopsApplication for test class com.devsecops.usermgmt.integration.AdminIntegrationTest","logger":"org.springframework.boot.test.context.SpringBootTestContextBootstrapper","thread":"main","level":"INFO","APP_NAME":"api-devsecops-usermgmt","service":"api-devsecops-usermgmt"}
 ]]></system-out>
   </testcase>
-  <testcase name="registerRequestExceedingLimitReturns429" classname="com.devsecops.usermgmt.filter.RateLimitingFilterTest" time="0.004">
-    <system-out><![CDATA[{"timestamp":"2026-06-07T19:22:46.6924473+02:00","@version":"1","message":"Rate limit exceeded for IP=10.0.0.2 path=/api/auth/register","logger":"com.devsecops.usermgmt.filter.RateLimitingFilter","thread":"main","level":"WARN","APP_NAME":"api-devsecops-usermgmt","service":"api-devsecops-usermgmt"}
-]]></system-out>
-  </testcase>
-  <testcase name="differentIpsHaveIndependentBuckets" classname="com.devsecops.usermgmt.filter.RateLimitingFilterTest" time="0.021">
-    <system-out><![CDATA[{"timestamp":"2026-06-07T19:22:46.7018029+02:00","@version":"1","message":"Rate limit exceeded for IP=1.1.1.1 path=/api/auth/login","logger":"com.devsecops.usermgmt.filter.RateLimitingFilter","thread":"main","level":"WARN","APP_NAME":"api-devsecops-usermgmt","service":"api-devsecops-usermgmt"}
-]]></system-out>
-  </testcase>
-  <testcase name="loginRequestWithinLimitIsAllowed" classname="com.devsecops.usermgmt.filter.RateLimitingFilterTest" time="0.002"/>
-  <testcase name="nonRateLimitedPathIsNotFiltered" classname="com.devsecops.usermgmt.filter.RateLimitingFilterTest" time="0.002"/>
 </testsuite>

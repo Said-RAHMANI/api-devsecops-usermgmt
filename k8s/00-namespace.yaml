@@ -1,0 +1,10 @@
+# ============================================================
+# Namespace dédié — isole toutes les ressources du projet
+# ============================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: usermgmt
+  labels:
+    name: usermgmt
+    app.kubernetes.io/part-of: api-devsecops-usermgmt
