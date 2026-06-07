@@ -1,0 +1,88 @@
+# ============================================================
+# Configuration Prometheus — scraping de l'API Spring Boot
+#
+# Fournie au format ConfigMap afin d'être montée dans le pod Prometheus
+# déployé via le chart Helm "kube-prometheus-stack" (cf. commandes du rapport) :
+#
+#   helm install prometheus prometheus-community/kube-prometheus-stack \
+#     --namespace monitoring --create-namespace \
+#     --set-file prometheus.prometheusSpec.additionalScrapeConfigs=monitoring/prometheus-config.yaml
+#
+# (le fichier passé via --set-file doit contenir UNIQUEMENT la liste scrape_configs,
+#  d'où le second document ci-dessous "prometheus-additional-scrape-configs.yaml")
+# ============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+  labels:
+    app: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      external_labels:
+        cluster: usermgmt-local
+        project: api-devsecops-usermgmt
+
+    scrape_configs:
+      # ---------- API Spring Boot (Actuator / Micrometer) ----------
+      - job_name: "usermgmt-api"
+        metrics_path: /actuator/prometheus
+        scrape_interval: 15s
+        scheme: http
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - usermgmt
+        relabel_configs:
+          # Ne garder que les pods annotés prometheus.io/scrape: "true"
+          # (cf. annotations posées sur le Deployment dans k8s/api-deployment.yaml)
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - target_label: application
+            replacement: api-devsecops-usermgmt
+
+      # ---------- Auto-découverte (alternative simple via le Service ClusterIP) ----------
+      - job_name: "usermgmt-api-service"
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ["api-service.usermgmt.svc.cluster.local:8080"]
+            labels:
+              application: api-devsecops-usermgmt
+              environment: local
+
+---
+# ============================================================
+# Variante "additionalScrapeConfigs" : ne contient QUE la liste scrape_configs,
+# au format attendu par kube-prometheus-stack via --set-file.
+# Enregistrez ce second document séparément si besoin
+# (ex: monitoring/prometheus-additional-scrape-configs.yaml).
+# ============================================================
+# - job_name: "usermgmt-api"
+#   metrics_path: /actuator/prometheus
+#   kubernetes_sd_configs:
+#     - role: pod
+#       namespaces:
+#         names: ["usermgmt"]
+#   relabel_configs:
+#     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+#       action: keep
+#       regex: "true"

@@ -1,0 +1,196 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "Datasource Prometheus du cluster (kube-prometheus-stack)",
+      "type": "datasource",
+      "pluginId": "prometheus"
+    }
+  ],
+  "title": "API DevSecOps UserMgmt — Vue d'ensemble",
+  "uid": "usermgmt-api-overview",
+  "description": "CPU, mémoire JVM et requêtes HTTP de l'API Spring Boot (métriques Micrometer / Actuator Prometheus, job=usermgmt-api)",
+  "editable": true,
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "time": { "from": "now-1h", "to": "now" },
+  "tags": ["spring-boot", "usermgmt", "devsecops"],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {}
+      },
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": "${DS_PROMETHEUS}",
+        "query": "label_values(process_cpu_usage{application=\"api-devsecops-usermgmt\"}, instance)",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Utilisation CPU (process)",
+      "type": "timeseries",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "min": 0 },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "process_cpu_usage{application=\"api-devsecops-usermgmt\", instance=~\"$instance\"}",
+          "legendFormat": "CPU process — {{instance}}",
+          "refId": "A"
+        },
+        {
+          "expr": "system_cpu_usage{application=\"api-devsecops-usermgmt\", instance=~\"$instance\"}",
+          "legendFormat": "CPU système — {{instance}}",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Mémoire JVM utilisée (Heap / Non-Heap)",
+      "type": "timeseries",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "fieldConfig": {
+        "defaults": { "unit": "bytes", "min": 0 },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (area, instance) (jvm_memory_used_bytes{application=\"api-devsecops-usermgmt\", instance=~\"$instance\"})",
+          "legendFormat": "{{area}} — {{instance}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Débit de requêtes HTTP (req/s, par statut)",
+      "type": "timeseries",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "min": 0 },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(http_server_requests_seconds_count{application=\"api-devsecops-usermgmt\", instance=~\"$instance\"}[5m]))",
+          "legendFormat": "HTTP {{status}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Latence moyenne des requêtes HTTP (p50 / p95)",
+      "type": "timeseries",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "fieldConfig": {
+        "defaults": { "unit": "s", "min": 0 },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le, uri) (rate(http_server_requests_seconds_bucket{application=\"api-devsecops-usermgmt\", instance=~\"$instance\"}[5m])))",
+          "legendFormat": "p50 — {{uri}}",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, uri) (rate(http_server_requests_seconds_bucket{application=\"api-devsecops-usermgmt\", instance=~\"$instance\"}[5m])))",
+          "legendFormat": "p95 — {{uri}}",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Threads JVM actifs",
+      "type": "stat",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 16 },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        { "expr": "sum(jvm_threads_live_threads{application=\"api-devsecops-usermgmt\"})", "refId": "A" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Pods de l'API en service (UP)",
+      "type": "stat",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 16 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        { "expr": "sum(up{job=\"usermgmt-api\"})", "refId": "A" }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Taux d'erreurs HTTP 5xx (%)",
+      "type": "stat",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 16 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "100 * sum(rate(http_server_requests_seconds_count{application=\"api-devsecops-usermgmt\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{application=\"api-devsecops-usermgmt\"}[5m]))",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Connexions actives au pool HikariCP",
+      "type": "stat",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 16 },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        { "expr": "sum(hikaricp_connections_active{application=\"api-devsecops-usermgmt\"})", "refId": "A" }
+      ]
+    }
+  ]
+}
