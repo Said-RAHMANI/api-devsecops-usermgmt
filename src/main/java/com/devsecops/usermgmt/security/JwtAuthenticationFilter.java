@@ -41,9 +41,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        // If a pre-authenticated SecurityContext is already present (e.g. tests using
+        // SecurityMockMvcRequestPostProcessors.user(...)), skip JWT extraction.
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = resolveToken(request);
 
-        // 🔧 CAS 1 : Pas de token → 401 Unauthorized
+        // No token → return 401
         if (!StringUtils.hasText(token)) {
             log.debug("No JWT token found in request");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing authentication token");

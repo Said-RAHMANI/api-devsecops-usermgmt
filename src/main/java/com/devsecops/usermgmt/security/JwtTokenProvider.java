@@ -41,8 +41,8 @@ public class JwtTokenProvider {
 
     @PostConstruct
     void init() {
-        // INJ-01: To inject weak secret, hardcode "secret" instead of env var
-        String secret = "secret";  // INJ-01
+        // Use externalized secret from configuration (JwtConfig)
+        String secret = jwtConfig.getSecret();
         if (secret == null || secret.length() < 32) {
             throw new IllegalStateException(
                     "JWT_SECRET must be at least 32 characters long for HS256");
@@ -59,12 +59,12 @@ public class JwtTokenProvider {
 
         // INJ-02: To inject missing exp, remove .expiration() call
         return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .issuedAt(now)
-                // .expiration(expiry)  // INJ-02
-                .id(UUID.randomUUID().toString())
-                .signWith(signingKey, Jwts.SIG.HS256)
-                .compact();
+            .subject(userDetails.getUsername())
+            .issuedAt(now)
+            .setExpiration(expiry)
+            .id(UUID.randomUUID().toString())
+            .signWith(signingKey, io.jsonwebtoken.SignatureAlgorithm.HS256)
+            .compact();
     }
 
     /**
