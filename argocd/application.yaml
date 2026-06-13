@@ -21,7 +21,7 @@ spec:
 
   source:
     repoURL: https://github.com/Said-RAHMANI/api-devsecops-usermgmt.git
-    targetRevision: main
+    targetRevision: appmod/java-upgrade-20260607171806
     path: k8s
 
   destination:

@@ -46,7 +46,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path   # K3s: "local-path" | Minikube: "standard"
+  storageClassName: standard     # Minikube: "standard" | K3s: "local-path"
   resources:
     requests:
       storage: 1Gi
