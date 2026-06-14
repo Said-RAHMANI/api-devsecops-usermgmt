@@ -9,8 +9,9 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn package -DskipTests -B
 
-FROM ubuntu:20.04  // INJ-09
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# INJ-09: vulnerable base image (ubuntu:20.04, EOL/outdated packages)
+FROM ubuntu:20.04
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
