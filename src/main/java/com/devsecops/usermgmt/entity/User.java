@@ -49,7 +49,7 @@ public class User {
     private String password;
 
     // INJ-05: To inject Mass Assignment, remove @JsonIgnore from role
-    @JsonIgnore
+    // @JsonIgnore  // INJ-05
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
