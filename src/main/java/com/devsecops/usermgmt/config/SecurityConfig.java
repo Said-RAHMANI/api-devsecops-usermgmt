@@ -56,8 +56,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .requestMatchers("/api/auth/logout").authenticated()
-                        // INJ-06: To inject BFLA, remove .authenticated()  // INJ-06
-                        .requestMatchers("/api/admin/**").authenticated()  // INJ-06
+                        // INJ-06: BFLA - replaced .hasRole("ADMIN") with .authenticated()
+                        .requestMatchers("/api/admin/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter,
