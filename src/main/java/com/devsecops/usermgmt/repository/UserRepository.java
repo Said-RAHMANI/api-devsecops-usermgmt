@@ -8,15 +8,10 @@ import java.util.Optional;
 
 /**
  * Spring Data JPA repository for {@link User}.
- *
- * <p>All finders use derived query methods which generate parameterized
- * SQL — they are immune to SQL injection by construction.</p>
  */
-// INJ-03: To inject SQL injection, add @Query("SELECT u FROM User u WHERE u.username = '" + username + "'")
+// INJ-03: findByUsername is no longer a derived (parameterized) query — see UserRepositoryImpl
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-
-    Optional<User> findByUsername(String username);
+public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
 
     Optional<User> findByEmail(String email);
 
