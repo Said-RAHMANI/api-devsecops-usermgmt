@@ -54,14 +54,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id, String currentUsername) {
         User user = loadById(id);
-        verifyOwnershipOrAdmin(user, currentUsername);
+        // verifyOwnershipOrAdmin(user, currentUsername);  // INJ-04
         return UserMapper.toResponse(user);
     }
 
     @Transactional
     public UserResponse updateUser(Long id, UpdateUserRequest request, String currentUsername) {
         User user = loadById(id);
-        verifyOwnershipOrAdmin(user, currentUsername);
+        // verifyOwnershipOrAdmin(user, currentUsername);  // INJ-04
         applyUpdates(user, request);
         return UserMapper.toResponse(userRepository.save(user));
     }
@@ -69,7 +69,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id, String currentUsername) {
         User user = loadById(id);
-        verifyOwnershipOrAdmin(user, currentUsername);
+        // verifyOwnershipOrAdmin(user, currentUsername);  // INJ-04
         userRepository.delete(user);
         log.info("User '{}' deleted by '{}'", user.getUsername(), currentUsername);
     }
