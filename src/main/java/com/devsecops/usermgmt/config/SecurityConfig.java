@@ -49,7 +49,6 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/auth/refresh",
                                 "/api/auth/verify",
-                                "/health",
                                 "/actuator/health/**",
                                 "/actuator/prometheus",
                                 "/",
