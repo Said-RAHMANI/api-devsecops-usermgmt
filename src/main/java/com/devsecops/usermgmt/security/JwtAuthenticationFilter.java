@@ -48,38 +48,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // This filter only ever POPULATES the SecurityContext when a valid Bearer
+        // token is present. It must never reject the request itself: doing so would
+        // short-circuit Spring Security's authorizeHttpRequests rules (permitAll/
+        // hasRole/authenticated), which are the single source of truth for access
+        // decisions. Public endpoints (login, register, actuator health, ...) would
+        // otherwise be unreachable without a token.
         String token = resolveToken(request);
 
-        // No token → return 401
-        if (!StringUtils.hasText(token)) {
-            log.debug("No JWT token found in request");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing authentication token");
-            return;
-        }
+        if (StringUtils.hasText(token)) {
+            if (jwtTokenProvider.validateToken(token)) {
+                try {
+                    String username = jwtTokenProvider.getUsernameFromToken(token);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        // 🔧 CAS 2 : Token invalide → 401 Unauthorized
-        if (!jwtTokenProvider.validateToken(token)) {
-            log.debug("Invalid JWT token");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
-            return;
-        }
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
 
-        // 🔧 CAS 3 : Token valide → on authentifie l'utilisateur
-        try {
-            String username = jwtTokenProvider.getUsernameFromToken(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-            authentication.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request));
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (Exception ex) {
-            log.debug("Could not authenticate user: {}", ex.getMessage());
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
-            return;
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } catch (Exception ex) {
+                    log.debug("Could not authenticate user from token: {}", ex.getMessage());
+                    SecurityContextHolder.clearContext();
+                }
+            } else {
+                log.debug("Invalid or expired JWT token");
+            }
         }
 
         filterChain.doFilter(request, response);

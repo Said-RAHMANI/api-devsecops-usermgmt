@@ -10,7 +10,7 @@ L'application implémente l'authentification JWT, le contrôle d'accès basé su
 
 | Outil | Version minimale |
 |-------|-----------------|
-| Java (JDK) | 17 |
+| Java (JDK) | 21 |
 | Maven | 3.9+ |
 | Docker | 24+ |
 | Docker Compose | 2.20+ |

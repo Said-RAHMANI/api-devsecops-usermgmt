@@ -151,7 +151,7 @@
         "overrides": []
       },
       "targets": [
-        { "expr": "sum(up{job=\"usermgmt-api\"})", "refId": "A" }
+        { "expr": "sum(up{job=\"api-service\"})", "refId": "A" }
       ]
     },
     {
@@ -176,7 +176,7 @@
       },
       "targets": [
         {
-          "expr": "100 * sum(rate(http_server_requests_seconds_count{application=\"api-devsecops-usermgmt\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{application=\"api-devsecops-usermgmt\"}[5m]))",
+          "expr": "100 * sum(rate(http_server_requests_seconds_count{application=\"api-devsecops-usermgmt\", status=~\"5..\"}[5m])) / (sum(rate(http_server_requests_seconds_count{application=\"api-devsecops-usermgmt\"}[5m])) or vector(1))",
           "refId": "A"
         }
       ]
