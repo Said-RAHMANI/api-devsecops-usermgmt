@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
@@ -38,7 +37,6 @@ public class AuthController {
     public ResponseEntity<JwtResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
     }
-
     @Operation(summary = "Authenticate with username and password")
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -62,3 +60,4 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 }
+
