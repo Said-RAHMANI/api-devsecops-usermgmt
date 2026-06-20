@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.devsecops.usermgmt.controller.AuthControllerTest
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.843 s -- in com.devsecops.usermgmt.controller.AuthControllerTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.587 s -- in com.devsecops.usermgmt.controller.AuthControllerTest

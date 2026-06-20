@@ -1,0 +1,75 @@
+# ============================================================
+# Services Kubernetes
+# - postgres-service : ClusterIP, accessible UNIQUEMENT depuis le cluster
+# - api-service      : NodePort, point d'entrée pour K3s/Minikube en local
+# ============================================================
+
+# ---------- Service interne PostgreSQL ----------
+# ClusterIP (par défaut) : aucune exposition hors du cluster.
+# Le nom "postgres" doit correspondre au host utilisé dans
+# SPRING_DATASOURCE_URL (jdbc:postgresql://postgres:5432/usermgmt).
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: usermgmt
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  clusterIP: None   # Service "headless" — requis/recommandé pour un StatefulSet
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+      protocol: TCP
+
+---
+# ---------- Service exposant l'API ----------
+# NodePort : pratique pour K3s/Minikube en local (accès via <node-ip>:30080).
+# En environnement cloud, remplacez par "type: LoadBalancer" ou utilisez un Ingress.
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  namespace: usermgmt
+  labels:
+    app: usermgmt-api
+spec:
+  type: NodePort
+  selector:
+    app: usermgmt-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
+      protocol: TCP
+
+---
+# ---------- (Optionnel) Ingress — alternative au NodePort ----------
+# Décommentez et adaptez si un Ingress Controller (ex: traefik fourni avec K3s,
+# ou ingress-nginx sur Minikube via `minikube addons enable ingress`) est disponible.
+#
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: api-ingress
+#   namespace: usermgmt
+#   annotations:
+#     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#     - host: usermgmt.local
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: api-service
+#                 port:
+#                   number: 8080

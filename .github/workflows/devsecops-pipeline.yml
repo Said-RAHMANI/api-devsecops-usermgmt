@@ -18,7 +18,7 @@ jobs:
       
       - uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
       
       - name: Cache Maven
@@ -46,7 +46,30 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t api-devsecops-usermgmt:latest .
-      
+
+      # ---------- Harbor Registry (push de l'image scannée) ----------
+      # Secrets attendus dans Settings > Secrets and variables > Actions :
+      #   HARBOR_REGISTRY  -> ex: harbor.mondomaine.local
+      #   HARBOR_PROJECT   -> ex: devsecops
+      #   HARBOR_USERNAME  -> compte robot Harbor (ex: robot$ci-pipeline)
+      #   HARBOR_TOKEN     -> jeton/mot de passe du compte robot Harbor
+      - name: Login to Harbor Registry
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.HARBOR_REGISTRY }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_TOKEN }}
+
+      - name: Tag & Push Image to Harbor
+        if: github.event_name == 'push'
+        run: |
+          IMAGE="${{ secrets.HARBOR_REGISTRY }}/${{ secrets.HARBOR_PROJECT }}/api-devsecops-usermgmt"
+          docker tag api-devsecops-usermgmt:latest "$IMAGE:${{ github.sha }}"
+          docker tag api-devsecops-usermgmt:latest "$IMAGE:latest"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
       - name: Trivy Image Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -76,7 +99,7 @@ jobs:
           docker compose up -d --build
           echo "Waiting for API to be ready..."
           for i in {1..30}; do
-            if curl -s http://localhost:8080/health > /dev/null 2>&1; then
+            if curl -s http://localhost:8080/actuator/health > /dev/null 2>&1; then
               echo "API is ready!"
               break
             fi

@@ -10,7 +10,7 @@ L'application implémente l'authentification JWT, le contrôle d'accès basé su
 
 | Outil | Version minimale |
 |-------|-----------------|
-| Java (JDK) | 17 |
+| Java (JDK) | 21 |
 | Maven | 3.9+ |
 | Docker | 24+ |
 | Docker Compose | 2.20+ |
@@ -95,7 +95,7 @@ java -jar target/*.jar
 
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
-| `GET` | `/health` | Vérification de santé de l'application |
+| `GET` | `/actuator/health` | Vérification de santé de l'application |
 | `GET` | `/swagger-ui.html` | Interface Swagger UI |
 | `GET` | `/v3/api-docs` | Spécification OpenAPI 3.0 (JSON) |
 

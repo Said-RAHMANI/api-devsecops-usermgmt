@@ -49,7 +49,8 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/auth/refresh",
                                 "/api/auth/verify",
-                                "/health",
+                                "/actuator/health/**",
+                                "/actuator/prometheus",
                                 "/",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -65,7 +66,8 @@ public class SecurityConfig {
 
         return http.build();
     }
-
+   private static final String DUMMY_EXPOSED_SECRET = "xoxb-9876543210-abcdef-EXPOSED-TOKEN-MS2I-TEST-2026";
+ 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

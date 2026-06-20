@@ -1,0 +1,31 @@
+# ============================================================
+# ServiceMonitor — branche l'opérateur Prometheus (kube-prometheus-stack)
+# sur l'endpoint /actuator/prometheus de l'API Spring Boot.
+#
+# Le label "release: kube-prom" est OBLIGATOIRE : le Prometheus déployé par
+# le chart Helm "kube-prom" ne sélectionne que les ServiceMonitors qui portent
+# ce label (spec.serviceMonitorSelector.matchLabels.release == kube-prom).
+# ============================================================
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: api-servicemonitor
+  namespace: monitoring
+  labels:
+    release: kube-prom
+    app: usermgmt-api
+spec:
+  # Sélectionne le Service "api-service" du namespace "usermgmt"
+  # (cf. k8s/services.yaml — labels.app: usermgmt-api)
+  namespaceSelector:
+    matchNames:
+      - usermgmt
+  selector:
+    matchLabels:
+      app: usermgmt-api
+  endpoints:
+    - port: http              # nom du port exposé par api-service (8080)
+      path: /actuator/prometheus
+      interval: 15s
+      scrapeTimeout: 10s
+      scheme: http

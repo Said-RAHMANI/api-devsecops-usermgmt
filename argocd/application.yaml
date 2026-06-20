@@ -1,0 +1,54 @@
+# ============================================================
+# ArgoCD Application — GitOps pour api-devsecops-usermgmt
+#
+# Synchronise automatiquement le contenu du dossier k8s/ de ce dépôt
+# vers le namespace "usermgmt" du cluster, avec :
+#   - automated.prune    : supprime les ressources retirées du dépôt
+#   - automated.selfHeal : annule toute dérive manuelle (kubectl edit, etc.)
+#                          en réappliquant l'état défini dans Git
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: api-devsecops-usermgmt
+  namespace: argocd
+  finalizers:
+    # Garantit la suppression en cascade des ressources déployées
+    # si l'Application ArgoCD elle-même est supprimée
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/Said-RAHMANI/api-devsecops-usermgmt.git
+    targetRevision: appmod/java-upgrade-20260607171806
+    path: k8s
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: usermgmt
+
+  syncPolicy:
+    automated:
+      prune: true        # Self-Healing : supprime ce qui n'est plus déclaré dans Git
+      selfHeal: true      # Self-Healing : corrige toute dérive (drift) du cluster
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true   # crée le namespace "usermgmt" s'il n'existe pas
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Empêche ArgoCD de signaler une dérive sur les champs gérés par le cluster
+  # (ex: nodePort assigné dynamiquement, replicas modifiés par un HPA, etc.)
+  ignoreDifferences:
+    - group: ""
+      kind: Service
+      jsonPointers:
+        - /spec/clusterIP
+        - /spec/ports/0/nodePort
